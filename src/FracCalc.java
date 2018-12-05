@@ -150,7 +150,7 @@ public class FracCalc {
         return (a*b)/gcd;
     }
     public static int wholeNumber(int a, int b) {
-    if (a >= b){
+    if (Math.abs(a) >= b){
     	return (a / b);
     	}else {
     		return 0;
