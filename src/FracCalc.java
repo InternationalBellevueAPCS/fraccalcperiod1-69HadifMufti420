@@ -7,14 +7,6 @@ public class FracCalc {
     	input = keyboard.nextLine();
     	System.out.println(produceAnswer(input));
     }
-    
-    /**
-     * produceAnswer - This function takes a String 'input' and produces the result.
-     * @param input - A fraction string that needs to be evaluated.  For your program, this will be the user input.
-     *      Example: input ==> "1/2 + 3/4"
-     * @return the result of the fraction after it has been calculated.
-     *      Example: return ==> "1_1/4"
-     */
     }
     public static String produceAnswer(String input){ 
     	if (input.equals("quit") == false){
@@ -37,6 +29,7 @@ public class FracCalc {
 	    	int calcBottom = 1;
 	    	int bottom = 1;
 	   		if (index != -1) {
+	   			//assigns the first side of the equation to a string
 	   			String first = input.substring(0, index - 1);
 	   			if (first.indexOf("_") > 0) {
 	   				firstWhole = first.substring(0, first.indexOf("_"));
@@ -47,82 +40,91 @@ public class FracCalc {
 	   	   				firstWholeInt = Integer.parseInt(firstWhole);
 	   	   				}
 	   			}
+	   			//assigns each component of the first string to a variable
 	   			if (first.indexOf("/") > 0) {
 	   				firstNumerator = first.substring(first.indexOf("_") + 1, first.indexOf("/"));
 	   				firstDenominator = first.substring(first.indexOf("/") + 1, first.length());
 	   				firstNumeratorInt = Integer.parseInt(firstNumerator);
 	   				firstDenominatorInt = Integer.parseInt(firstDenominator);
+	   				if (firstWholeInt < 0) {
+	   					firstNumeratorInt *= -1;
+	   				}
 	   			}
+	   		//assigns the second side of the equation to a string
 	   			String second = input.substring((index + 2), input.length());
 	   			if (second.indexOf("_") > 0) {
 	   				secondWhole = second.substring(0, second.indexOf("_"));
-	   				secondWholeInt = Integer.parseInt(secondWhole);
-	   				}else {
+	   				secondWholeInt = Integer.parseInt(secondWhole);	
+	   			}else {
 	   				if (second.indexOf("/") < 0) {
 	   	   				secondWhole = second;
 	   	   				secondWholeInt = Integer.parseInt(secondWhole);
 	   	   				}
 	   			}
+	   			//assigns each component of the second string to a variable
 	   			if (second.indexOf("/") > 0) {
 	   				secondNumerator = second.substring(second.indexOf("_") + 1, second.indexOf("/"));
 	   				secondDenominator = second.substring(second.indexOf("/") + 1, second.length());
 	   				secondNumeratorInt = Integer.parseInt(secondNumerator);
 	   				secondDenominatorInt = Integer.parseInt(secondDenominator);
+	   				if (secondWholeInt < 0) {
+	   					secondNumeratorInt *= -1;
+	   				}
 	   			}
-	   			System.out.println("firstWhole: " + firstWholeInt + ", firstNumerator: " + firstNumeratorInt + ", firstDenominator: " + firstDenominatorInt);
-	   			System.out.println ("secondWhole: " + secondWholeInt + ", secondNumerator: " + secondNumeratorInt + ", secondDenominator: " + secondDenominatorInt);
+	   			//gets all of the values into two fractions with the same denominator for easy calculation
 	   			firstTop = (firstWholeInt * firstDenominatorInt + firstNumeratorInt) * secondDenominatorInt;
 	   			secondTop = (secondWholeInt * secondDenominatorInt + secondNumeratorInt) * firstDenominatorInt;
 	   			bottom = secondDenominatorInt * firstDenominatorInt;
-	   			System.out.println(firstTop + "/" + bottom + ", " + secondTop + "/" + bottom);
+	   			
+	   			//the following section determines the operator used and takes care of calculations
 	   			if (input.charAt(index) == '+') {
 	   				calcTop = firstTop + secondTop;
 	   				calcBottom = bottom;
+	   				//addition calculation
 	   			}else {
 	   				if (input.charAt(index) == '-') {
 	   					calcTop = firstTop - secondTop;
 	   					calcBottom = bottom;
+	   					//subtraction calculation
 	   				} else {
 	   					if (input.charAt(index) == '*') {
 	   						calcTop = firstTop * secondTop;
 	   						calcBottom = bottom * bottom;
+	   						//multiplication calculation
 	   					}else {
 	   						if (input.charAt(index) == '/') {
 	   							calcTop = firstTop * bottom;
 	   							calcBottom = secondTop * bottom;
+	   							//cross multiplies for division
+	   							if (calcBottom < 0) {
+	   								calcBottom *= -1;
+	   								calcTop *= -1;
+	   								//makes the numerator negative instead of the denominator
+	   							}
 	   						}
 	   					}
 	   				}
 	   			}
 	   		}
-	   		int bigTop = calcTop - (wholeNumber(calcTop, calcBottom) * calcBottom);
-	   		return wholeNumber(calcTop, calcBottom) + "_" + bigTop / greatestCommonDivisor(bigTop, calcBottom) + "/" + calcBottom / greatestCommonDivisor(bigTop, calcBottom);
-    	}else {
+	   		int factoredTop = calcTop - (wholeNumber(calcTop, calcBottom) * calcBottom);
+	   		//simplifies out the whole number
+	   		if (factoredTop == 0){
+	   			return "" + wholeNumber(calcTop, calcBottom);
+	   			//if there's no fraction, only prints whole number
+	   			}else {
+	   			if (wholeNumber(calcTop, calcBottom) == 0) {
+			   		return "" + factoredTop / greatestCommonDivisor(factoredTop, calcBottom) + "/" + Math.abs(calcBottom / greatestCommonDivisor(factoredTop, calcBottom));
+			   		//if  there's no whole number, only prints fraction
+	   			}else {
+		   			return wholeNumber(calcTop, calcBottom) + "_" + Math.abs(factoredTop / greatestCommonDivisor(factoredTop, calcBottom)) + "/" + Math.abs(calcBottom / greatestCommonDivisor(factoredTop, calcBottom));
+		   			//prints both whole number and fraction if both are present
+	   			}
+		   	}
+	   		}else {
     		return "";
-    		}
-    }
-	   			
-	   			// TODO: Implement this function to produce the solution to the input
-	        // Checkpoint 1: Return the second operand.  Example "4/5 * 1_2/4" returns "1_2/4".
-	        // Checkpoint 2: Return the second operand as a string representing each part.
-	        //               Example "4/5 * 1_2/4" returns "secondWhole:1 secondNumerator:2 secondDenominator:4".
-	        // Checkpoint 3: Evaluate the formula and return the result as a fraction.
-	        //               Example "4/5 * 1_2/4" returns "6/5".
-	        //               Note: Answer does not need to be reduced, but it must be correct.
-	        // Final project: All answers must be reduced.
-	        //               Example "4/5 * 1_2/4" returns "1_1/5".
-
-
-    // TODO: Fill in the space below with helper methods
-    
-    /**
-     * greatestCommonDivisor - Find the largest integer that evenly divides two integers.
-     *      Use this helper method in the Final Checkpoint to reduce fractions.
-     *      Note: There is a different (recursive) implementation in BJP Chapter 12.
-     * @param a - first integer.
-     * @param b - Second integer.
-     * @return The GCD.
-     */
+    		//returns an empty string if the user enters the equation without spaces so that it doesn't error
+	   		}
+    	}
     public static int greatestCommonDivisor(int a, int b)
     {
         a = Math.abs(a);
@@ -136,24 +138,12 @@ public class FracCalc {
         }
         return max;
     }
-    
-    /**
-     * leastCommonMultiple - Find the smallest integer that can be evenly divided by two integers.
-     *      Use this helper method in Checkpoint 3 to evaluate expressions.
-     * @param a - first integer.
-     * @param b - Second integer.
-     * @return The LCM.
-     */
-    public static int leastCommonMultiple(int a, int b)
-    {
-        int gcd = greatestCommonDivisor(a, b);
-        return (a*b)/gcd;
-    }
     public static int wholeNumber(int a, int b) {
-    if (Math.abs(a) >= b){
-    	return (a / b);
-    	}else {
-    		return 0;
-    	}
-    }
-}
+    	//figures out the highest whole number that can be factored out of the fraction
+    	if (Math.abs(a) >= b){
+	    	return (a / b);
+	    	}else {
+	    		return 0;
+	    	}
+	    }
+	}
